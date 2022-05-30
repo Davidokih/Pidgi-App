@@ -70,27 +70,22 @@ const updateUser = async (req, res) => {
 };
 const removeUser = async (req, res) => {
     try {
-        const { userName, email, password } = req.body;
-        const user = await userModel.findOne({ email });
+        // const { userName, email, password } = req.body;
+        await userModel.findById(req.params.id);
+        await cloudinary.uploader.destroy(req.params.id);
+        const mainUser = await userModel.findByIdAndDelete(req.params.id);
 
-        if (user) {
-            const image = await cloudinary.uploader.upload(req.file.path);
-            const mainUser = await userModel.findByIdAndDelete(req.params.id);
+        res.status(200).json({
+            status: 'Successs',
+            data: mainUser
+        });
 
-            res.status(200).json({
-                status: 'Successs',
-                data: mainUser
-            });
-        } else {
-            res.status(400).json({
-                message: "user does not exits"
-            });
-        }
     } catch (error) {
         res.status(404).json({
             status: 'Fail',
-            message: error.message
+            message: error
         });
+        console.log(error);
     }
 };
 const createUser = async (req, res) => {
